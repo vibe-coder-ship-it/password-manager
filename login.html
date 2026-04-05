@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+    <h1>Login</h1>
+    <form method="POST" action="{{ url_for('login') }}">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+        <br>
+        <label for="password">Master Password:</label>
+        <input type="password" id="password" name="password" required>
+        <input type="checkbox" id="show-password" onclick="togglePassword()"> <label for="show-password">Show Password</label>
+        <br>
+        <button type="submit">Login</button>
+    </form>
+
+    <script>
+        function togglePassword() {
+            var pwdInput = document.getElementById("password");
+            if (pwdInput.type === "password") {
+                pwdInput.type = "text";
+            } else {
+                pwdInput.type = "password";
+            }
+        }
+    </script>
+{% endblock %}

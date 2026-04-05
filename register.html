@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Create an Account{% endblock %}
+
+{% block content %}
+    <h1>Create an Account</h1>
+    <form method="POST" action="{{ url_for('register') }}">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+        <br>
+        <label for="password">Master Password:</label>
+        <input type="password" id="password" name="password" required>
+        <input type="checkbox" id="show-password" onclick="togglePassword()"> <label for="show-password">Show Password</label>
+        <br>
+        <button type="submit">Register</button>
+    </form>
+
+    <script>
+        function togglePassword() {
+            var pwdInput = document.getElementById("password");
+            if (pwdInput.type === "password") {
+                pwdInput.type = "text";
+            } else {
+                pwdInput.type = "password";
+            }
+        }
+    </script>
+{% endblock %}
