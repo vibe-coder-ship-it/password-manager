@@ -1,5 +1,6 @@
 import os
 import psycopg2
+from urllib.parse import urlparse
 from dotenv import load_dotenv
 
 # Load environment variables from .env
@@ -7,17 +8,22 @@ load_dotenv()
 
 # Connects to the PostgreSQL database
 def get_db_connection():
-    """Establishes and returns a connection to the database."""
+    """Establishes and returns a connection to the database using DATABASE_URL."""
+    database_url = os.getenv('DATABASE_URL')
+    if not database_url:
+        raise EnvironmentError("DATABASE_URL environment variable is not set.")
+    parsed = urlparse(database_url)
     conn = psycopg2.connect(
-        host=os.getenv('DATABASE_HOST'),
-        database=os.getenv('POSTGRES_DB'),
-        user=os.getenv('POSTGRES_USER'),
-        password=os.getenv('POSTGRES_PASSWORD'),
-        port=os.getenv('DATABASE_PORT')
+        host=parsed.hostname,
+        database=parsed.path.lstrip('/'),
+        user=parsed.username,
+        password=parsed.password,
+        port=parsed.port
     )
     return conn
 
 # Creates the database tables if they don't exist
+
 def initialize_database():
     conn = get_db_connection()
     with conn.cursor() as cur:
