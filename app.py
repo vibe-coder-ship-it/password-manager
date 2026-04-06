@@ -4,7 +4,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from functools import wraps
 
 # Import our custom scripts for database, security, and password generation
-from scripts.database import get_db_connection
+from scripts.database import get_db_connection, initialize_database
 from scripts.user_management import hash_password, check_password
 from scripts.encryption import generate_salt, derive_key, encrypt_password, decrypt_password
 from scripts.password_generator import generate_password as gen_pass
@@ -16,6 +16,13 @@ load_dotenv()
 app = Flask(__name__)
 # Set the secret key for securely signing the session cookie
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+
+# Ensure database tables exist on every startup
+try:
+    initialize_database()
+except Exception as e:
+    print(f"Database initialization error: {e}")
+
 
 # Decorator function to ensure a user is logged in before accessing certain routes
 def login_required(f):
