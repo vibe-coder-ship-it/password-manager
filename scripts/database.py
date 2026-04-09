@@ -23,23 +23,24 @@ def get_db_connection():
     return conn
 
 # Creates the database tables if they don't exist
-
 def initialize_database():
     conn = get_db_connection()
     with conn.cursor() as cur:
 
-# Creates the table with the users registration/login data
+        # Creates the table with the users registration/login data
         cur.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 id SERIAL PRIMARY KEY,
                 username VARCHAR(255) UNIQUE NOT NULL,
                 master_password_hash VARCHAR(255) NOT NULL,
                 encryption_salt VARCHAR(32) NOT NULL,
+                two_factor_secret VARCHAR(32),
+                two_factor_enabled BOOLEAN DEFAULT FALSE,
                 created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
             );
         """)
 
-    # Creates the table with the credentials stored by users.
+        # Creates the table with the credentials stored by users.
         cur.execute("""
             CREATE TABLE IF NOT EXISTS credentials (
                 id SERIAL PRIMARY KEY,
@@ -57,6 +58,11 @@ def initialize_database():
         # ensuring old databases are updated without losing data.
         cur.execute("ALTER TABLE credentials ADD COLUMN IF NOT EXISTS email VARCHAR(255);")
         cur.execute("ALTER TABLE credentials ALTER COLUMN username DROP NOT NULL;")
+
+        # Migrations to add 2FA columns to the users table for existing databases.
+        cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS two_factor_secret VARCHAR(32);")
+        cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS two_factor_enabled BOOLEAN DEFAULT FALSE;")
+
     conn.commit()
     conn.close()
     print("Database initialized successfully.")
